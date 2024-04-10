@@ -243,9 +243,16 @@ MonoBehaviour:
   - {fileID: 4845492850828882648, guid: 84d47304f4fca034aba5e8bc920ee47b, type: 3}
   - {fileID: 9180749616803518314, guid: a19acf327e65ef6499c4882c1d4553eb, type: 3}
   - {fileID: 3053331638713297686, guid: c70c0b9ff4f4def429e5cf1eac443209, type: 3}
+  - {fileID: 3053331638713297686, guid: 11f63d1d15908b84cba6a46885e8c7d1, type: 3}
+  - {fileID: 3053331638713297686, guid: 5180e2b05f40872469641be753e9b771, type: 3}
+  - {fileID: 3053331638713297686, guid: a6b6ada16278f7e4f9c941e0d5fb2011, type: 3}
+  - {fileID: 3053331638713297686, guid: d59aad0dc3625394d82772fcb5a2806f, type: 3}
+  - {fileID: 3053331638713297686, guid: f8543584bee5046489024d922d0ae258, type: 3}
+  _emtpySlotPrefab: {fileID: 3053331638713297686, guid: 3ac2e4b1665d4d64fb69efdeda761b5f, type: 3}
   Slots: []
   _parent: {fileID: 247888886}
   _startPosition: {fileID: 229522616}
+  CanPlay: 1
 --- !u!1 &91414253
 GameObject:
   m_ObjectHideFlags: 0

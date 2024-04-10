@@ -60,7 +60,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 if(Match3.Instance.IsInsideGrid(neighborX, neighborY))
                 {
                     //Debug.Log("Moving right");
-                    Match3.Instance.Swap(X,Y, neighborX, neighborY);    
+                    Match3.Instance.Swap(X,Y, neighborX, neighborY);
+                    //Match3.CanPlay = false;
                 }
             }
             else
@@ -73,6 +74,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 {
                     //Debug.Log("Moving left");
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
+                    //Match3.CanPlay = false;
                 }
             }
         }
@@ -88,6 +90,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 {
                     //Debug.Log("Moving up");
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
+                   // Match3.CanPlay = false;
                 }
             }
             else
@@ -100,6 +103,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 {
                     //Debug.Log("Moving down");
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
+                   // Match3.CanPlay = false;
                 }
             }
         }

@@ -621,6 +621,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Level_01
       objectReference: {fileID: 0}
+    - target: {fileID: 124539353175384896, guid: 4ac38ab2392599d4ea0d833ff4573d21, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2413001968532085389, guid: 4ac38ab2392599d4ea0d833ff4573d21, type: 3}
       propertyPath: RedPointIndices.Array.size
       value: 4

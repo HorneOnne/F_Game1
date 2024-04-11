@@ -21,88 +21,164 @@ public class Match3 : MonoBehaviour
 
     // check still playable data
     private int[] _checkStillPlayableSlotsID;
+    private Queue<GameObject> _destroyGameObjectQueue = new();
 
-
-    enum Match3State
+    public enum Match3State
     {
-        Swept,
+        CanPlay,
+        Swap,
+        WaitToDestroy,
         FallDown,
+        Fill,
     }
+    public Match3State State;
+    public SwapStruct CurrentSwap;
 
 
+    // auto play
+    private float _autoPlayTimer = 0.0f;
+    private float _fallDownTimer = 0.0f;
+    private float _waitToDestroyTimer = 0.0f;
+    private float _showMatchTimer = 0.0f;
+    private float _swapCheckTimer = 0.0f;
     private void Awake()
     {
         Instance = this;
         InitializedBoard();
     }
 
-
+    private void Start()
+    {
+        State = Match3State.CanPlay;
+    }
     private void Update()
     {
-      
-        //if(Input.GetKeyDown(KeyCode.W))
-        //{
-        //    SweptGrid();
-        //}
-
-
-        //if (Input.GetKeyDown(KeyCode.F))
-        //{  
-        //    bool falling = FallDown();
-        //    if(falling)
-        //    {
-        //        CreateNewLinesOnTop();
-        //    }
-           
-
-        //    Debug.Log($"Fall: {falling}");
-        //}
-
-        //SweptGrid();
-        //FallDown();
-        //bool isFilled = CreateNewLinesOnTop();
-        //if(isFilled == true)
-        //{
-        //    Debug.Log("filled");
-        //}
-
-        if(CanPlay == true)
+        if (IsFull())
         {
-            if(SweptGrid())
+            //if (SweptGrid() && State != Match3State.WaitToDestroy)
+            //{
+            //    //State = Match3State.FallDown;
+            //    State = Match3State.WaitToDestroy;
+            //}
+            //else
+            //{
+            //    State = Match3State.CanPlay;
+            //}
+            if(State != Match3State.Swap)
             {
-                CanPlay = false;
-                StartCoroutine(LogicHandlerCoroutine());
-            }
-            else
-            {
-                if (StillCanPlay(out int x1, out int y1, out int x2, out int y2))
+                if (SweptGrid() && State != Match3State.WaitToDestroy)
                 {
-                    Swap(x1, y1, x2, y2);
+                    //State = Match3State.FallDown;
+                    State = Match3State.WaitToDestroy;
                 }
                 else
                 {
-                    Debug.Log("cannot play");
-                    Shuffle();
+                    State = Match3State.CanPlay;
                 }
             }
+           
+
         }
 
-    }
 
-    public IEnumerator LogicHandlerCoroutine()
-    {
-        while(true)
+
+        switch (State)
         {
-            FallDown();
-            bool isFull = CreateNewLinesOnTop();
-            if (isFull == true)
-            {
+            case Match3State.Swap:
+                _swapCheckTimer += Time.deltaTime;
+                if (_swapCheckTimer > 0.2f)
+                {
+                    if (SweptGrid())
+                    {
+                        State = Match3State.WaitToDestroy;
+                    }
+                    else
+                    {
+                        Swap(CurrentSwap.x1, CurrentSwap.y1, CurrentSwap.x2, CurrentSwap.y2);
+                        State = Match3State.CanPlay;
+                    }
+                    _swapCheckTimer = 0.0f;
+                }
                 break;
-            }
-            yield return new WaitForSeconds(0.2f);
+            case Match3State.WaitToDestroy:
+                _waitToDestroyTimer += Time.deltaTime;
+                _showMatchTimer += Time.deltaTime;
+                if (_showMatchTimer > 0.05f)
+                {
+                    _showMatchTimer = 0.0f;
+                    for (int i = 0; i < _matchListndex.Count; i++)
+                    {
+                        Slots[_matchListndex[i]].Match();
+                    }
+                }
+                if (_waitToDestroyTimer > 0.15f)
+                {
+                    for (int i = 0; i < _matchListndex.Count; i++)
+                    {
+                        _destroyGameObjectQueue.Enqueue(Slots[_matchListndex[i]].gameObject);
+                        int cellX = _matchListndex[i] % WIDTH;
+                        int cellY = _matchListndex[i] / WIDTH;
+                        CreateNewEmtpySlot(cellX, cellY);
+                    }
+                    if (_destroyGameObjectQueue.Count > 0)
+                    {
+                        while (_destroyGameObjectQueue.Count > 0)
+                        {
+                            Destroy(_destroyGameObjectQueue.Dequeue());
+                        }
+                    }
+
+                    _showMatchTimer = 0.0f;
+                    _waitToDestroyTimer = 0;
+                    State = Match3State.FallDown;
+                }
+                break;
+            case Match3State.FallDown:
+                _fallDownTimer += Time.deltaTime;
+                if (_fallDownTimer > 0.1f)
+                {
+                    _fallDownTimer = 0.0f;
+                    bool isFalling = FallDown();
+                    if (isFalling == false)
+                    {
+                        State = Match3State.Fill;
+                    }
+                }
+                break;
+            case Match3State.Fill:
+                Debug.Log("Fill");
+                if (IsFull())
+                {
+                    State = Match3State.CanPlay;
+                }
+                else
+                {
+                    CreateNewLinesOnTop();
+                    State = Match3State.FallDown;
+                }
+                break;
         }
-        CanPlay = true;
+
+
+
+
+        _autoPlayTimer += Time.deltaTime;
+        if (_autoPlayTimer > 0.5f && State == Match3State.CanPlay)
+        {
+            _autoPlayTimer = 0.0f;
+            if (StillCanPlay(out int x1, out int y1, out int x2, out int y2))
+            {
+                //Swap(x1, y1, x2, y2);
+            }
+            else
+            {
+                Debug.Log("cannot play");
+                Shuffle();
+            }
+        }
+
     }
+
 
 
     private void InitializedBoard()
@@ -118,7 +194,7 @@ public class Match3 : MonoBehaviour
         }
     }
 
-    private Vector2 GetCellPosition(int x, int y)
+    public Vector2 GetCellPosition(int x, int y)
     {
         return new Vector2(_startPosition.anchoredPosition.x + x * _cellSize.x, _startPosition.anchoredPosition.y + y * _cellSize.y);
     }
@@ -157,8 +233,8 @@ public class Match3 : MonoBehaviour
         Slots[endX + endY * WIDTH].SetSlot(endX, endY);
 
         // update position
-        Slots[startX + startY * WIDTH].RectTrans.anchoredPosition = GetCellPosition(startX, startY);
-        Slots[endX + endY * WIDTH].RectTrans.anchoredPosition = GetCellPosition(endX, endY);
+        //Slots[startX + startY * WIDTH].RectTrans.anchoredPosition = GetCellPosition(startX, startY);
+        //Slots[endX + endY * WIDTH].RectTrans.anchoredPosition = GetCellPosition(endX, endY);
         return true;
     }
 
@@ -181,25 +257,18 @@ public class Match3 : MonoBehaviour
         {
             for (int x = 0; x < WIDTH; x++)
             {
-                if(CheckMatch3(x, y, ref _matchListndex))
+                if (CheckMatch3(x, y, ref _matchListndex))
                 {
-                    for(int i = 0; i < _matchListndex.Count; i++)
-                    {
-                        Destroy(Slots[_matchListndex[i]].gameObject);
-
-                        int cellX = _matchListndex[i] % WIDTH;
-                        int cellY = _matchListndex[i] / WIDTH;
-                        CreateNewEmtpySlot(cellX, cellY);
-                    }
                     return true;
 
                 }
-        
+
             }
         }
         return false;
     }
-   
+
+
 
     private bool CheckMatch3(int x, int y, ref List<int> matchListIndex)
     {
@@ -223,7 +292,7 @@ public class Match3 : MonoBehaviour
             matchListIndex.Add(x + (y + 2) * WIDTH);
             return true; ;
         }
-       
+
         return false;
     }
 
@@ -236,39 +305,48 @@ public class Match3 : MonoBehaviour
 
     private bool FallDown()
     {
-        bool falling = false;
-        for(int y = 0; y < HEIGHT; y++)
+        bool isFalling = false;
+        for (int y = 0; y < HEIGHT; y++)
         {
-            for(int x = 0; x < WIDTH; x++)
+            for (int x = 0; x < WIDTH; x++)
             {
-                if(IsInsideGrid(x, y-1))
+                if (IsInsideGrid(x, y - 1))
                 {
-                    if (Slots[x + (y - 1) * WIDTH].ID == -1)
+                    if (Slots[x + y * WIDTH].ID != -1 && Slots[x + (y - 1) * WIDTH].ID == -1)
                     {
                         Swap(x, y, x, y - 1);
-                        falling = true;
+                        isFalling = true;
                     }
                 }
 
             }
         }
-        return falling;
+        return isFalling;
     }
 
-    private bool CreateNewLinesOnTop()
+    private void CreateNewLinesOnTop()
     {
-        bool isFull = true;
-        for(int x = 0; x < WIDTH; x++)
+        for (int x = 0; x < WIDTH; x++)
         {
-            if(GetSlotID(x,HEIGHT-1) == -1)
+            if (GetSlotID(x, HEIGHT - 1) == -1)
             {
                 Destroy(Slots[x + (HEIGHT - 1) * WIDTH].gameObject);
                 CreateNewSlot(x, HEIGHT - 1);
-                isFull = false;
             }
         }
-        return isFull;
     }
+
+    private bool IsFull()
+    {
+        for (int i = 0; i < Slots.Length; i++)
+        {
+            if (Slots[i].ID == -1)
+                return false;
+        }
+        return true;
+    }
+
+
 
 
 
@@ -334,7 +412,7 @@ public class Match3 : MonoBehaviour
 
                 if (TrySweptGrid() == true)
                 {
-                    x1 = x; y1 = y; x2 = x + 1;y2 = y;
+                    x1 = x; y1 = y; x2 = x + 1; y2 = y;
                     //Debug.Log($"horizontal {x} {y}     {x + 1} {y}");
                     return true;
                 }
@@ -384,4 +462,16 @@ public class Match3 : MonoBehaviour
         }
     }
     #endregion
+}
+
+
+public struct SwapStruct
+{
+    public int x1, y1, x2, y2;
+
+    public SwapStruct(int x1, int y1, int x2, int y2)
+    {
+        this.x1 = x1; this.y1 = y1;
+        this.x2 = x2; this.y2 = y2;
+    }
 }

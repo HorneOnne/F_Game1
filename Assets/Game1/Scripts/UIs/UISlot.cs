@@ -30,12 +30,31 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         BlushImage.enabled = false;
     }
 
+    private void Update()
+    {
+        Vector2 targetPosition = Match3.Instance.GetCellPosition(X, Y);
+        Vector2 moveDir = targetPosition - RectTrans.anchoredPosition;
+        float moveSpeed = 20f;
+        RectTrans.anchoredPosition += moveDir * moveSpeed * Time.deltaTime;
+    }
+
     public void SetSlot(int x, int y)
     {
         this.X = x;
         this.Y = y;
     }
 
+    public void Match()
+    {
+        BorderImage.enabled = true;
+        BlushImage.enabled = true;
+    }
+
+
+    private void OnDestroy()
+    {
+     
+    }
     public void OnBeginDrag(PointerEventData eventData)
     {
         _startDragPosition = eventData.position;
@@ -48,6 +67,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (Match3.Instance.State != Match3.Match3State.CanPlay) return;
+
         _endDragPosition = eventData.position;
         Vector2 direction = (_endDragPosition - _startDragPosition).normalized;
         if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
@@ -57,11 +78,13 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
               
                 int neighborX = X + 1;
                 int neighborY = Y;
-                if(Match3.Instance.IsInsideGrid(neighborX, neighborY))
+                if (Match3.Instance.IsInsideGrid(neighborX, neighborY))
                 {
                     //Debug.Log("Moving right");
-                    Match3.Instance.Swap(X,Y, neighborX, neighborY);
-                    //Match3.CanPlay = false;
+                    Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
+                    Match3.Instance.Swap(X, Y, neighborX, neighborY);
+                    Match3.Instance.State = Match3.Match3State.Swap;
+                  
                 }
             }
             else
@@ -73,8 +96,10 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 if (Match3.Instance.IsInsideGrid(neighborX, neighborY))
                 {
                     //Debug.Log("Moving left");
+                    Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
-                    //Match3.CanPlay = false;
+                    Match3.Instance.State = Match3.Match3State.Swap;
+                  
                 }
             }
         }
@@ -89,8 +114,10 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 if (Match3.Instance.IsInsideGrid(neighborX, neighborY))
                 {
                     //Debug.Log("Moving up");
+                    Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
-                   // Match3.CanPlay = false;
+                    Match3.Instance.State = Match3.Match3State.Swap;
+             
                 }
             }
             else
@@ -102,8 +129,10 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 if (Match3.Instance.IsInsideGrid(neighborX, neighborY))
                 {
                     //Debug.Log("Moving down");
+                    Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
-                   // Match3.CanPlay = false;
+                    Match3.Instance.State = Match3.Match3State.Swap;
+                
                 }
             }
         }

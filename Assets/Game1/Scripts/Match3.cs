@@ -121,6 +121,7 @@ public class Match3 : MonoBehaviour
             case Match3State.WaitToDestroy:
                 _waitToDestroyTimer += Time.deltaTime;
                 _showMatchTimer += Time.deltaTime;
+                SoundManager.Instance.PlaySound(SoundType.HitBlock, false);
                 if (_showMatchTimer > 0.05f)
                 {
                     _showMatchTimer = 0.0f;
@@ -137,7 +138,10 @@ public class Match3 : MonoBehaviour
                     bool canWin = IsWin();
                     if (canWin)
                     {
-                        Debug.Log("Win");
+                        //Debug.Log("Win");
+                        GameControllers.Instance.CurrentPlayerTurn.AdditionMove+=2;
+                        GameControllers.Instance.ChangePlayState(GameControllers.PlayState.None);
+                        GameplayManager.Instance.RemoveMatch3();
                     }
 
                     for (int i = 0; i < _matchListndex.Count; i++)
@@ -195,7 +199,7 @@ public class Match3 : MonoBehaviour
             _autoPlayTimer = 0.0f;
             if (StillCanPlay(out int x1, out int y1, out int x2, out int y2))
             {
-                Swap(x1, y1, x2, y2);
+                //Swap(x1, y1, x2, y2);
             }
             else
             {
@@ -498,7 +502,8 @@ public class Match3 : MonoBehaviour
         while(true)
         {
             CardSO card = _allcards[Random.Range(0, _allcards.Count)];
-            int quantity = Random.Range(3, 8);
+            int quantity = Random.Range(1, 2);
+            //int quantity = Random.Range(3, 8);
 
             if(WinConditions.ContainsKey(card) == false)
             {

@@ -11,6 +11,9 @@ public class GameplayManager : MonoBehaviour
     public static event System.Action OnRoundFinished;
     public static event System.Action OnStartNextRound;
 
+    public GameObject Match3Prefab;
+    private GameObject _match3Instance;
+
     public enum GameState
     {
         PLAYING,
@@ -53,6 +56,7 @@ public class GameplayManager : MonoBehaviour
     private void Start()
     {
         Time.timeScale = 1.0f;
+        ChangeGameState(GameState.WAITING);
 
     }
     #endregion
@@ -81,20 +85,28 @@ public class GameplayManager : MonoBehaviour
                 break;
             case GameState.PLAYING:
                 Time.timeScale = 1.0f;
-
+                StartCoroutine(Utilities.WaitAfter(1.0f, () =>
+                {
+                    UIGameplayManager.Instance.DisplayUIDiceRoll(true);
+                    GameControllers.Instance.ChangePlayState(GameControllers.PlayState.Roll);
+                }));
                 OnPlaying?.Invoke();
                 break;
             case GameState.WIN:
-
+                StartCoroutine(Utilities.WaitAfter(0.25f, () =>
+                {
+                    GameManager.Instance.UnlockNextCharacter();
+                    SoundManager.Instance.PlaySound(SoundType.HitBlock, false);
+                    UIGameplayManager.Instance.DisplayUIWin(true);
+                }));
                 OnWin?.Invoke();
                 break;
             case GameState.GAMEOVER:
-
-                //StartCoroutine(Utilities.WaitAfter(0.5f, () =>
-                //{
-                //    SoundManager.Instance.PlaySound(SoundType.GameOver, false);
-                //    UIGameplayManager.Instance.DisplayGameoverMenu(true);
-                //}));
+                StartCoroutine(Utilities.WaitAfter(0.25f, () =>
+                {                   
+                    SoundManager.Instance.PlaySound(SoundType.HitBlock, false);
+                    UIGameplayManager.Instance.DisplayUIGameover(true);
+                }));
                 OnGameOver?.Invoke();
                 break;
             case GameState.PAUSE:
@@ -107,6 +119,25 @@ public class GameplayManager : MonoBehaviour
             case GameState.EXIT:
                 Time.timeScale = 1.0f;
                 break;
+        }
+    }
+
+    public void CreateMatch3()
+    {
+        if(_match3Instance == null)
+        {
+            _match3Instance = Instantiate(Match3Prefab);
+            _match3Instance.GetComponent<Canvas>().worldCamera = Camera.main;
+        }
+            
+    }
+
+
+    public void RemoveMatch3()
+    {
+        if (_match3Instance != null)
+        {
+            Destroy(_match3Instance.gameObject);
         }
     }
 }

@@ -11,7 +11,11 @@ public class GameManager : MonoBehaviour
     public CharacterDataSO CurrentCharacter;
     public int NumOfPlayers;
 
+    public List<Map> Levels;
+    public Map CurrentMap { get; private set; }
+    public int CurrentLevel = 1;
 
+    public CharacterDataSO NextUnlockCharacter;
 
     private void Awake()
     {
@@ -26,6 +30,12 @@ public class GameManager : MonoBehaviour
         CurrentCharacter = Characters[_currentCharacterIndex];
         // FPS
         Application.targetFrameRate = 60;
+
+
+
+        // Get next unlock character.
+        NextUnlockCharacter = Characters[Characters.Count - 1];
+        GetNextUnlockCharacter();
     }
 
     private void Start()
@@ -48,6 +58,39 @@ public class GameManager : MonoBehaviour
     {  
         _currentCharacterIndex = (_currentCharacterIndex + 1) % Characters.Count;
         CurrentCharacter = Characters[_currentCharacterIndex];
+    }
+
+    public void LoadLevel(int level)
+    {
+        CurrentLevel = level;
+        CurrentMap = Instantiate(Levels[level - 1], Vector2.zero, Quaternion.identity);  
+    }
+
+    public void UnlockNextCharacter()
+    {
+        NextUnlockCharacter.Unlock = true;
+        Debug.Log("unlock");
+        for(int i = 0; i < Characters.Count; i++)
+        {
+            if (Characters[i].ID == NextUnlockCharacter.ID)
+            {
+                Characters[i].Unlock = true;
+            }
+        }
+    }
+
+    public CharacterDataSO GetNextUnlockCharacter()
+    {
+        for (int i = 0; i < Characters.Count; i++)
+        {
+            if (Characters[i].Unlock == false)
+            {
+                NextUnlockCharacter = Characters[i];
+                break;
+            }
+        }
+
+        return NextUnlockCharacter;
     }
 }
 

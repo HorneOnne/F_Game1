@@ -34,7 +34,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     {
         Vector2 targetPosition = Match3.Instance.GetCellPosition(X, Y);
         Vector2 moveDir = targetPosition - RectTrans.anchoredPosition;
-        float moveSpeed = 20f;
+        float moveSpeed = 25;
         RectTrans.anchoredPosition += moveDir * moveSpeed * Time.deltaTime;
     }
 
@@ -85,8 +85,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
                     Match3.Instance.MoveCount++;
+                    SoundManager.Instance.PlaySound(SoundType.Button, false);
 
-                  
                 }
             }
             else
@@ -102,6 +102,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
                     Match3.Instance.MoveCount++;
+                    SoundManager.Instance.PlaySound(SoundType.Button, false);
 
                 }
             }
@@ -121,6 +122,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
                     Match3.Instance.MoveCount++;
+                    SoundManager.Instance.PlaySound(SoundType.Button, false);
 
                 }
             }
@@ -137,6 +139,7 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
                     Match3.Instance.MoveCount++;
+                    SoundManager.Instance.PlaySound(SoundType.Button, false);
 
                 }
             }

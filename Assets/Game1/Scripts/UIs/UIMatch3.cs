@@ -7,7 +7,6 @@ public class UIMatch3 : CustomCanvas
 {
     public TextMeshProUGUI MoveText;
     public Transform ProgressPanelParent;
-
     public List<UIMatch3Progress> ProgressList;
 
 

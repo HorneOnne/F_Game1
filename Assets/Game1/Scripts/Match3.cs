@@ -5,6 +5,7 @@ using UnityEngine;
 public class Match3 : MonoBehaviour
 {
     public static Match3 Instance { get; private set; }
+    public static event System.Action OnMatched;
     [SerializeField] private List<UISlot> _slotsPrefabs;
     [SerializeField] private UISlot _emtpySlotPrefab;
     public UISlot[] Slots;
@@ -41,9 +42,20 @@ public class Match3 : MonoBehaviour
     private float _waitToDestroyTimer = 0.0f;
     private float _showMatchTimer = 0.0f;
     private float _swapCheckTimer = 0.0f;
+
+
+    // Game condition
+    public int MoveCount = 0;
+    [SerializeField] private List<CardSO> _allcards;
+    public Dictionary<CardSO, int> WinConditions = new();
+    public int[] ProgressCounter;
+
     private void Awake()
     {
         Instance = this;
+
+        AddWinCondition();
+        ProgressCounter = new int[WinConditions.Count];
         InitializedBoard();
     }
 
@@ -68,16 +80,15 @@ public class Match3 : MonoBehaviour
             {
                 if (SweptGrid() && State != Match3State.WaitToDestroy)
                 {
+             
                     //State = Match3State.FallDown;
-                    State = Match3State.WaitToDestroy;
+                    State = Match3State.WaitToDestroy;       
                 }
                 else
                 {
                     State = Match3State.CanPlay;
                 }
-            }
-           
-
+            }          
         }
 
 
@@ -90,6 +101,13 @@ public class Match3 : MonoBehaviour
                 {
                     if (SweptGrid())
                     {
+                        //UpdateProgress(_matchListndex[0]);
+                        //bool canWin = IsWin();
+                        //if (canWin)
+                        //{
+                        //    Debug.Log("Win");
+                        //}
+
                         State = Match3State.WaitToDestroy;
                     }
                     else
@@ -113,6 +131,15 @@ public class Match3 : MonoBehaviour
                 }
                 if (_waitToDestroyTimer > 0.15f)
                 {
+                  
+                    UpdateProgress(Slots[_matchListndex[0]].ID);
+                    OnMatched?.Invoke();
+                    bool canWin = IsWin();
+                    if (canWin)
+                    {
+                        Debug.Log("Win");
+                    }
+
                     for (int i = 0; i < _matchListndex.Count; i++)
                     {
                         _destroyGameObjectQueue.Enqueue(Slots[_matchListndex[i]].gameObject);
@@ -168,11 +195,11 @@ public class Match3 : MonoBehaviour
             _autoPlayTimer = 0.0f;
             if (StillCanPlay(out int x1, out int y1, out int x2, out int y2))
             {
-                //Swap(x1, y1, x2, y2);
+                Swap(x1, y1, x2, y2);
             }
             else
             {
-                Debug.Log("cannot play");
+                Debug.Log("shuffle");
                 Shuffle();
             }
         }
@@ -258,7 +285,7 @@ public class Match3 : MonoBehaviour
             for (int x = 0; x < WIDTH; x++)
             {
                 if (CheckMatch3(x, y, ref _matchListndex))
-                {
+                {                                          
                     return true;
 
                 }
@@ -460,6 +487,67 @@ public class Match3 : MonoBehaviour
 
             Swap(x1, y1, x2, y2);
         }
+    }
+    #endregion
+
+
+    #region Win condition
+    private void AddWinCondition()
+    {
+        int attempts = 0;
+        while(true)
+        {
+            CardSO card = _allcards[Random.Range(0, _allcards.Count)];
+            int quantity = Random.Range(3, 8);
+
+            if(WinConditions.ContainsKey(card) == false)
+            {
+                WinConditions.Add(card, quantity);
+            }
+
+
+            if(WinConditions.Count == 3)
+            {
+                break;
+            }
+
+            attempts++;
+            if (attempts > 1000)
+                break;
+        }         
+    }
+
+    private void UpdateProgress(int id)
+    {
+        int index = 0;
+        foreach(var e in WinConditions)
+        {
+            if(id == e.Key.ID)
+            {
+                if (ProgressCounter[index] < e.Value)
+                    ProgressCounter[index]++;
+            }
+
+            index++;
+        }
+    }
+
+    private bool IsWin()
+    {
+        bool canWin = true;
+        int index = 0;
+        foreach (var e in WinConditions)
+        {
+            if (ProgressCounter[index] < e.Value)
+            {
+                canWin = false;
+                break;
+            }
+
+            index++;
+        }
+
+        return canWin;
     }
     #endregion
 }

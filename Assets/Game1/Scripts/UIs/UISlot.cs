@@ -84,6 +84,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
+                    Match3.Instance.MoveCount++;
+
                   
                 }
             }
@@ -99,7 +101,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
-                  
+                    Match3.Instance.MoveCount++;
+
                 }
             }
         }
@@ -117,7 +120,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
-             
+                    Match3.Instance.MoveCount++;
+
                 }
             }
             else
@@ -132,7 +136,8 @@ public class UISlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                     Match3.Instance.CurrentSwap = new SwapStruct(X, Y, neighborX, neighborY);
                     Match3.Instance.Swap(X, Y, neighborX, neighborY);
                     Match3.Instance.State = Match3.Match3State.Swap;
-                
+                    Match3.Instance.MoveCount++;
+
                 }
             }
         }

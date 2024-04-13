@@ -5,6 +5,7 @@ public class UIGameplayManager : MonoBehaviour
 
     public UIBackground UIBackground;
     public UIGameplay UIGameplay;
+    public UIGameplaySettings UIGameplaySettings;
     public UILevelSelection UILevelSelection;
     public UIDiceRoll UIDiceRoll;
     public UIInformation UIInformation;
@@ -32,6 +33,7 @@ public class UIGameplayManager : MonoBehaviour
     {
         //DisplayGameplayMenu(false);
         DisplayUILevelSelection(false);
+        DisplayUIGameplaySettings(false);
         DisplayUIDiceRoll(false);
         DisplayUIInformation(false);
         DisplayUIWin(false);
@@ -44,6 +46,12 @@ public class UIGameplayManager : MonoBehaviour
     {
         UIGameplay.DisplayCanvas(isActive);
     }
+
+    public void DisplayUIGameplaySettings(bool isActive)
+    {
+        UIGameplaySettings.DisplayCanvas(isActive);
+    }
+
 
     public void DisplayUILevelSelection(bool isActive)
     {

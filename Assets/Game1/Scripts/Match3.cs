@@ -121,7 +121,7 @@ public class Match3 : MonoBehaviour
             case Match3State.WaitToDestroy:
                 _waitToDestroyTimer += Time.deltaTime;
                 _showMatchTimer += Time.deltaTime;
-                SoundManager.Instance.PlaySound(SoundType.HitBlock, false);
+              
                 if (_showMatchTimer > 0.05f)
                 {
                     _showMatchTimer = 0.0f;
@@ -132,7 +132,7 @@ public class Match3 : MonoBehaviour
                 }
                 if (_waitToDestroyTimer > 0.15f)
                 {
-                  
+                    SoundManager.Instance.PlaySound(SoundType.HitBlock, false);
                     UpdateProgress(Slots[_matchListndex[0]].ID);
                     OnMatched?.Invoke();
                     bool canWin = IsWin();

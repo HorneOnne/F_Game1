@@ -10,8 +10,8 @@ public class UIGameplay : CustomCanvas
     {
         BackBtn.onClick.AddListener(() =>
         {
-            Loader.Load(Loader.Scene.MenuScene);
             SoundManager.Instance.PlaySound(SoundType.Button, false);
+            UIGameplayManager.Instance.DisplayUIGameplaySettings(true);
         });
 
         InformationBtn.onClick.AddListener(() =>
